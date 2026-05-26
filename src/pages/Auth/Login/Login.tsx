@@ -9,12 +9,14 @@ import { setUser } from "../../../redux/Features/Auth/authSlice";
 import TextInput from "../../../components/Reusable/TextInput/TextInput";
 import PasswordInput from "../../../components/Reusable/PasswordInput/PasswordInput";
 import Button from "../../../components/Reusable/Button/Button";
-import { ICONS, IMAGES } from "../../../assets";
+import { ICONS } from "../../../assets";
+import { FiHelpCircle } from "react-icons/fi";
 
 type TFormData = {
   email: string;
   password: string;
 };
+
 const Login = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
   const [login, { isLoading }] = useLoginMutation();
@@ -26,6 +28,7 @@ const Login = () => {
   } = useForm<TFormData>();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const handleSigIn = async (data: TFormData) => {
     try {
       const payload = {
@@ -51,53 +54,91 @@ const Login = () => {
       toast.error(error?.data?.message || "Login failed. Please try again.");
     }
   };
+
   return (
-    <div className="flex justify-center items-center min-h-screen bg-neutral-50/20 px-4">
-      <form
-        onSubmit={handleSubmit(handleSigIn)}
-        className="w-full max-w-md bg-white/90 backdrop-blur-sm shadow-lg rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center gap-6 font-Nunito border border-primary-10/20"
-      >
-        <img src={IMAGES.logo} alt="" className="w-40" />
-        {/* Email */}
-        <TextInput
-          label="Email"
-          placeholder="Enter your email"
-          type="email"
-          error={errors.email}
-          {...register("email", {
-            required: "Email is required",
-            pattern: {
-              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-              message: "Invalid email address",
-            },
-          })}
-        />
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 px-4">
+      <div className="w-full max-w-md">
+        {/* Helpdesk Badge */}
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center gap-2 bg-primary-10/10 px-4 py-2 rounded-full">
+            <FiHelpCircle className="text-primary-10" size={16} />
+            <span className="text-primary-10 text-sm font-medium">
+              Helpdesk | PRTech Solutions
+            </span>
+          </div>
+        </div>
 
-        <PasswordInput
-          label="Password"
-          placeholder="Must be at least 8 Characters"
-          error={errors.password}
-          {...register("password", {
-            required: "Password is required",
-            minLength: {
-              value: 8,
-              message: "Password must be at least 8 characters",
-            },
-          })}
-          isPasswordVisible={isPasswordVisible}
-          setIsPasswordVisible={setIsPasswordVisible}
-        />
+        {/* Login Card */}
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+          {/* Form */}
+          <form
+            onSubmit={handleSubmit(handleSigIn)}
+            className="px-6 py-8 space-y-5"
+          >
+            {/* Email Field */}
+            <TextInput
+              label="Email Address"
+              placeholder="Enter your email"
+              type="email"
+              error={errors.email}
+              {...register("email", {
+                required: "Email is required",
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "Invalid email address",
+                },
+              })}
+            />
 
-        <Button
-          type="submit"
-          label="Log In"
-          variant="primary"
-          iconWithoutBg={ICONS.topRightArrowWhite}
-          className="py-2 lg:py-2 w-full md:w-fit"
-          isLoading={isLoading}
-          isDisabled={isLoading}
-        />
-      </form>
+            {/* Password Field */}
+            <PasswordInput
+              label="PAssword"
+              placeholder="Enter your password"
+              error={errors.password}
+              {...register("password", {
+                required: "Password is required",
+                minLength: {
+                  value: 8,
+                  message: "Password must be at least 8 characters",
+                },
+              })}
+              isPasswordVisible={isPasswordVisible}
+              setIsPasswordVisible={setIsPasswordVisible}
+            />
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              label="Sign In"
+              variant="primary"
+              iconWithoutBg={ICONS.topRightArrowWhite}
+              className="py-2.5 w-full text-base font-semibold"
+              isLoading={isLoading}
+              isDisabled={isLoading}
+            />
+          </form>
+
+          {/* Footer */}
+          <div className="bg-gray-50 px-6 py-4 border-t border-gray-100">
+            <p className="text-center text-xs text-gray-500">
+              Need help? Contact support at{" "}
+              <a
+                href="mailto:support@prtech.com"
+                className="text-primary-10 hover:underline"
+              >
+                support@prtech.com
+              </a>
+            </p>
+          </div>
+        </div>
+
+        {/* Help Desk Info */}
+        <div className="text-center mt-6">
+          <p className="text-xs text-gray-400">
+            © {new Date().getFullYear()} PRTech Solutions. All rights reserved.
+          </p>
+        </div>
+      </div>
     </div>
   );
 };

@@ -182,13 +182,13 @@ const RaiseOrEditIssue = () => {
   return (
     <form
       onSubmit={handleSubmit(handleSubmitIssue)}
-      className="bg-white/90 backdrop-blur-sm shadow-lg rounded-2xl p-6 space-y-4"
+      className="bg-white/90 backdrop-blur-sm shadow-lg rounded-2xl p-4 md:p-6 space-y-4"
     >
       <div className="flex items-center gap-3 mb-6">
         <Link to="/dashboard/issues" aria-label="Go back">
-          <FiArrowLeft size={24} className="text-gray-600 mt-1" />
+          <FiArrowLeft size={24} className="text-gray-600 mt-1 text-xl" />
         </Link>
-        <h1 className="text-neutral-5 text-2xl font-semibold">
+        <h1 className="text-neutral-5 text-xl md:text-2xl font-semibold">
           {id ? "Edit" : "Raise an"} Issue
         </h1>
       </div>

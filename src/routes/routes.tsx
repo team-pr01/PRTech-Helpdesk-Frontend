@@ -7,8 +7,8 @@ import ErrorComponent from "../components/Reusable/ErrorComponent/ErrorComponent
 import NotFound from "../pages/NotFound/NotFound";
 import Queries from "../pages/Dashboard/Queries/Queries";
 import Issues from "../pages/Dashboard/Issues/Issues";
-import RaiseOrEditIssue from "../pages/Dashboard/Issues/RaiseOrEditIssue";
-import RaiseQuery from "../pages/Dashboard/Queries/RaiseQuery";
+import RaiseOrEditIssue from "../pages/Dashboard/RaiseOrEditIssue/RaiseOrEditIssue";
+import RaiseQuery from "../pages/Dashboard/RaiseQuery/RaiseQuery";
 
 export const router = createBrowserRouter([
   // Main layout routes

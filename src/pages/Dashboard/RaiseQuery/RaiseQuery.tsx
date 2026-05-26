@@ -69,15 +69,15 @@ const RaiseQuery = () => {
   return (
     <form
       onSubmit={handleSubmit(handleSubmitQuery)}
-      className="bg-white/90 backdrop-blur-sm shadow-lg rounded-2xl p-6 space-y-4"
+      className="bg-white/90 backdrop-blur-sm shadow-lg rounded-2xl p-4 md:p-6 space-y-4"
     >
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <Link to="/dashboard/queries" aria-label="Go back">
-          <FiArrowLeft size={24} className="text-gray-600 mt-1" />
+          <FiArrowLeft className="text-gray-600 mt-1 text-xl" />
         </Link>
-        <h1 className="text-neutral-5 text-2xl font-semibold">
-          Ask a Question
+        <h1 className="text-neutral-5 text-xl md:text-2xl font-semibold">
+          Raise a Query
         </h1>
       </div>
 

@@ -1,10 +1,9 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useState } from "react";
 import {
   FiAlertCircle,
   FiCheckCircle,
   FiClock,
-  FiImage,
-  FiCalendar,
   FiGrid,
   FiZap,
 } from "react-icons/fi";
@@ -13,9 +12,10 @@ import { formatDate } from "../../../utils/formatDate";
 import { Link } from "react-router-dom";
 import Button from "../../../components/Reusable/Button/Button";
 import { MdKeyboardArrowRight } from "react-icons/md";
+import IssueCard from "../../../components/IssuesPage/IssueCard/IssueCard";
 
 // Types
-type TIssue = {
+export type TIssue = {
   _id: string;
   title: string;
   description: string;
@@ -102,6 +102,58 @@ const mockIssues: TIssue[] = [
   },
 ];
 
+// Get status icon and color
+export const getStatusConfig = (status: string) => {
+  switch (status) {
+    case "Pending":
+      return {
+        icon: <FaRegClock size={14} />,
+        color: "text-yellow-600",
+        bg: "bg-yellow-50 border-yellow-200",
+      };
+    case "Ongoing":
+      return {
+        icon: <FiClock size={14} />,
+        color: "text-blue-600",
+        bg: "bg-blue-50 border-blue-200",
+      };
+    case "Resolved":
+      return {
+        icon: <FiCheckCircle size={14} />,
+        color: "text-green-600",
+        bg: "bg-green-50 border-green-200",
+      };
+    case "Closed":
+      return {
+        icon: <FiAlertCircle size={14} />,
+        color: "text-gray-600",
+        bg: "bg-gray-50 border-gray-200",
+      };
+    default:
+      return {
+        icon: <FiAlertCircle size={14} />,
+        color: "text-gray-600",
+        bg: "bg-gray-50",
+      };
+  }
+};
+
+// Get priority color
+export const getPriorityColor = (priority: string) => {
+  switch (priority) {
+    case "Urgent":
+      return "bg-red-100 text-red-700";
+    case "High":
+      return "bg-orange-100 text-orange-700";
+    case "Medium":
+      return "bg-yellow-100 text-yellow-700";
+    case "Low":
+      return "bg-green-100 text-green-700";
+    default:
+      return "bg-gray-100 text-gray-700";
+  }
+};
+
 const Issues = () => {
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [priorityFilter, setPriorityFilter] = useState<string>("All");
@@ -180,75 +232,26 @@ const Issues = () => {
     return true;
   });
 
-  // Get status icon and color
-  const getStatusConfig = (status: string) => {
-    switch (status) {
-      case "Pending":
-        return {
-          icon: <FaRegClock size={14} />,
-          color: "text-yellow-600",
-          bg: "bg-yellow-50 border-yellow-200",
-        };
-      case "Ongoing":
-        return {
-          icon: <FiClock size={14} />,
-          color: "text-blue-600",
-          bg: "bg-blue-50 border-blue-200",
-        };
-      case "Resolved":
-        return {
-          icon: <FiCheckCircle size={14} />,
-          color: "text-green-600",
-          bg: "bg-green-50 border-green-200",
-        };
-      case "Closed":
-        return {
-          icon: <FiAlertCircle size={14} />,
-          color: "text-gray-600",
-          bg: "bg-gray-50 border-gray-200",
-        };
-      default:
-        return {
-          icon: <FiAlertCircle size={14} />,
-          color: "text-gray-600",
-          bg: "bg-gray-50",
-        };
-    }
-  };
-
-  // Get priority color
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "Urgent":
-        return "bg-red-100 text-red-700";
-      case "High":
-        return "bg-orange-100 text-orange-700";
-      case "Medium":
-        return "bg-yellow-100 text-yellow-700";
-      case "Low":
-        return "bg-green-100 text-green-700";
-      default:
-        return "bg-gray-100 text-gray-700";
-    }
-  };
-
-  const handleViewDetails = (issue: TIssue) => {
-    setSelectedIssue(issue);
-    setIsModalOpen(true);
-  };
-
   return (
     <div className="space-y-6 font-Nunito">
-
       {/* Featured Question Card */}
-      <div className="bg-gradient-primary rounded-2xl p-6 mb-6 text-white shadow-xl">
+      <div className="bg-gradient-primary rounded-2xl p-4 lg:p-6 mb-6 text-white shadow-xl">
         <div className="flex items-center gap-2 mb-3">
           <FiZap className="text-yellow-300" size={18} />
-    <span className="text-sm font-medium text-yellow-200">Quick Actions</span>
+          <span className="text-sm font-medium text-yellow-200">
+            Quick Actions
+          </span>
         </div>
-        <h3 className="text-xl font-semibold mb-2">Got any issue with your system?</h3>
-        <p className="text-indigo-100 mb-4">A comprehensive guide to integrate our API into your application...</p>
-        <Link to="/dashboard/raise-issue" className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 w-fit">
+        <h3 className="text-xl font-semibold mb-2">
+          Got any issue with your system?
+        </h3>
+        <p className="text-indigo-100 mb-4 text-sm lg:text-base">
+          A comprehensive guide to integrate our API into your application...
+        </p>
+        <Link
+          to="/dashboard/raise-issue"
+          className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 w-fit"
+        >
           Raise an Issue
           <MdKeyboardArrowRight />
         </Link>
@@ -258,12 +261,12 @@ const Issues = () => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
           {/* Status Filter Pills */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex w-full overflow-x-auto text-nowrap gap-2">
             {statusOptions.map((option) => (
               <button
                 key={option.value}
                 onClick={() => setStatusFilter(option.value)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs lg:text-sm font-medium transition-all duration-200 ${
                   statusFilter === option.value
                     ? "bg-primary-10 text-white shadow-md"
                     : "bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200"
@@ -302,64 +305,13 @@ const Issues = () => {
       {/* Issues */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredIssues.map((issue) => {
-          const statusConfig = getStatusConfig(issue.status);
           return (
-            <div
+            <IssueCard
               key={issue._id}
-              className={`p-5 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-300 cursor-pointer`}
-              onClick={() => handleViewDetails(issue)}
-            >
-              {/* Title */}
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                {issue.title}
-              </h3>
-
-              {/* Description */}
-              <p className="text-gray-600 text-sm mb-4">{issue.description}</p>
-
-              <div className="flex items-center gap-2 mb-4">
-                {/* Status Badge */}
-                <div
-                  className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs ${statusConfig.bg}`}
-                >
-                  <span className={statusConfig.color}>
-                    {statusConfig.icon}
-                  </span>
-                  <span className={`font-medium ${statusConfig.color}`}>
-                    {issue.status}
-                  </span>
-                </div>
-
-                <span
-                  className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(issue.priority)}`}
-                >
-                  {issue.priority}
-                </span>
-              </div>
-
-              {/* Meta Information */}
-              <div className="space-y-2 pt-3 border-t border-gray-100">
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <FiCalendar size={14} />
-                  <span>Reported: {formatDate(issue.createdAt)}</span>
-                </div>
-
-                {issue.resolvedAt && (
-                  <div className="flex items-center gap-2 text-sm text-green-600">
-                    <FiCheckCircle size={14} />
-                    <span>Resolved: {formatDate(issue.resolvedAt)}</span>
-                  </div>
-                )}
-
-                {/* Images Preview */}
-                {issue.images && issue.images.length > 0 && (
-                  <div className="flex items-center gap-1 text-sm text-primary-10">
-                    <FiImage size={14} />
-                    <span>{issue.images.length} attachment(s)</span>
-                  </div>
-                )}
-              </div>
-            </div>
+              issue={issue}
+              setSelectedIssue={setSelectedIssue}
+              setIsModalOpen={setIsModalOpen}
+            />
           );
         })}
       </div>
