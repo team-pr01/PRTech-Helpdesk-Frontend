@@ -112,7 +112,7 @@ const Login = () => {
               label="Sign In"
               variant="primary"
               iconWithoutBg={ICONS.topRightArrowWhite}
-              className="py-2.5 w-full text-base font-semibold"
+              className="py-2.5 w-full flex items-center justify-center"
               isLoading={isLoading}
               isDisabled={isLoading}
             />
