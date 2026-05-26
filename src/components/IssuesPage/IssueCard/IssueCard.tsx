@@ -33,13 +33,13 @@ const IssueCard = ({ issue, setSelectedIssue, setIsModalOpen } : any) => {
           className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs ${statusConfig.bg}`}
         >
           <span className={statusConfig.color}>{statusConfig.icon}</span>
-          <span className={`font-medium ${statusConfig.color}`}>
+          <span className={`font-medium capitalize ${statusConfig.color}`}>
             {issue.status}
           </span>
         </div>
 
         <span
-          className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(issue.priority)}`}
+          className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${getPriorityColor(issue.priority)}`}
         >
           {issue.priority}
         </span>

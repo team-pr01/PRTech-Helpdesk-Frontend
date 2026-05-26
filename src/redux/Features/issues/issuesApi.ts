@@ -41,75 +41,106 @@ const issuesApi = baseApi.injectEndpoints({
         if (dateTo) params.append("dateTo", dateTo);
 
         return {
-          url: `/issues?${params.toString()}`,
+          url: `/issue?${params.toString()}`,
           method: "GET",
           credentials: "include",
         };
       },
-      providesTags: ["issues"],
+      providesTags: ["issue"],
     }),
 
     // Get single issue by ID
     getSingleIssue: builder.query({
       query: (id) => ({
-        url: `/issues/${id}`,
+        url: `/issue/${id}`,
         method: "GET",
         credentials: "include",
       }),
-      providesTags: ["issues"],
+      providesTags: ["issue"],
+    }),
+
+    // Get my queries (for logged-in user)
+    getMyRaisedIssues: builder.query({
+      query: ({
+        page,
+        limit,
+        skip,
+        status,
+        priority
+      }: {
+        page?: number;
+        limit?: number;
+        skip?: number;
+        status?: string;
+        priority?: string
+      } = {}) => {
+        const params = new URLSearchParams();
+        if (typeof limit === "number") params.append("limit", limit.toString());
+        if (typeof skip === "number") params.append("skip", skip.toString());
+        if (typeof page === "number") params.append("page", page.toString());
+        if (status) params.append("status", status);
+        if (priority) params.append("priority", priority);
+        
+        return {
+          url: `/issue/my-issues?${params.toString()}`,
+          method: "GET",
+          credentials: "include",
+        };
+      },
+      providesTags: ["issue"],
     }),
 
     // Add new issue (raise issue)
     addIssue: builder.mutation<any, any>({
       query: (data) => ({
-        url: `/issues/add`,
+        url: `/issue/raise`,
         method: "POST",
         body: data,
         credentials: "include",
       }),
-      invalidatesTags: ["issues"],
+      invalidatesTags: ["issue"],
     }),
 
     // Update issue
     updateIssue: builder.mutation<any, any>({
       query: ({ id, data }) => ({
-        url: `/issues/update/${id}`,
+        url: `/issue/update/${id}`,
         method: "PUT",
         body: data,
         credentials: "include",
       }),
-      invalidatesTags: ["issues"],
+      invalidatesTags: ["issue"],
     }),
 
     // Delete issue
     deleteIssue: builder.mutation<any, any>({
       query: (id) => ({
-        url: `/issues/delete/${id}`,
+        url: `/issue/delete/${id}`,
         method: "DELETE",
         credentials: "include",
       }),
-      invalidatesTags: ["issues"],
+      invalidatesTags: ["issue"],
     }),
 
     // Update issue status only
     updateIssueStatus: builder.mutation<any, any>({
       query: ({ id, status }) => ({
-        url: `/issues/status/${id}`,
+        url: `/issue/status/${id}`,
         method: "PATCH",
         body: { status },
         credentials: "include",
       }),
-      invalidatesTags: ["issues"],
+      invalidatesTags: ["issue"],
     }),
 
     // Get issue statistics
     getIssueStatistics: builder.query({
       query: () => ({
-        url: `/issues/statistics`,
+        url: `/issue/statistics`,
         method: "GET",
         credentials: "include",
       }),
-      providesTags: ["issues"],
+      providesTags: ["issue"],
     }),
 
     // Upload issue attachments
@@ -120,23 +151,23 @@ const issuesApi = baseApi.injectEndpoints({
           formData.append("attachments", file);
         });
         return {
-          url: `/issues/${id}/attachments`,
+          url: `/issue/${id}/attachments`,
           method: "POST",
           body: formData,
           credentials: "include",
         };
       },
-      invalidatesTags: ["issues"],
+      invalidatesTags: ["issue"],
     }),
 
     // Delete issue attachment
     deleteIssueAttachment: builder.mutation<any, any>({
       query: ({ issueId, attachmentId }) => ({
-        url: `/issues/${issueId}/attachments/${attachmentId}`,
+        url: `/issue/${issueId}/attachments/${attachmentId}`,
         method: "DELETE",
         credentials: "include",
       }),
-      invalidatesTags: ["issues"],
+      invalidatesTags: ["issue"],
     }),
   }),
 });
@@ -145,6 +176,7 @@ export const {
   // Issues hooks
   useGetAllIssuesQuery,
   useGetSingleIssueQuery,
+  useGetMyRaisedIssuesQuery,
   useAddIssueMutation,
   useUpdateIssueMutation,
   useDeleteIssueMutation,

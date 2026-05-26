@@ -11,7 +11,7 @@ import TextInput from "../../../components/Reusable/TextInput/TextInput";
 import Textarea from "../../../components/Reusable/TextArea/TextArea";
 import SelectDropdown from "../../../components/Reusable/SelectDropdown/SelectDropdown";
 import Button from "../../../components/Reusable/Button/Button";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { FiArrowLeft, FiX, FiUpload } from "react-icons/fi";
 
 type RaiseOrEditIssueFormData = {
@@ -24,6 +24,7 @@ type RaiseOrEditIssueFormData = {
 
 const RaiseOrEditIssue = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
@@ -52,8 +53,8 @@ const RaiseOrEditIssue = () => {
   const [updateIssue] = useUpdateIssueMutation();
 
   // Options for dropdowns
-  const priorityOptions = ["Low", "Medium", "High", "Urgent"];
-  const statusOptions = ["Pending", "Ongoing", "Resolved", "Closed"];
+  const priorityOptions = ["low", "medium", "high", "urgent"];
+const statusOptions = ["pending", "ongoing", "answered", "closed"];
 
   // Set default values when editing
   useEffect(() => {
@@ -156,6 +157,7 @@ const RaiseOrEditIssue = () => {
           reset();
           setImageFiles([]);
           setImagePreviews([]);
+          navigate("/dashboard/issues");
         }
       } else {
         const result = await updateIssue({

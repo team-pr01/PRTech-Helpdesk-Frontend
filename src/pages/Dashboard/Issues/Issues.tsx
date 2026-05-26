@@ -13,117 +13,45 @@ import { Link } from "react-router-dom";
 import Button from "../../../components/Reusable/Button/Button";
 import { MdKeyboardArrowRight } from "react-icons/md";
 import IssueCard from "../../../components/IssuesPage/IssueCard/IssueCard";
+import { useGetMyRaisedIssuesQuery } from "../../../redux/Features/issues/issuesApi";
+import Loader from "../../../components/Reusable/Loader/Loader";
 
 // Types
 export type TIssue = {
   _id: string;
   title: string;
   description: string;
-  status: "Pending" | "Ongoing" | "Resolved" | "Closed";
-  priority: "Low" | "Medium" | "High" | "Urgent";
-  category: string;
+  status: "pending" | "ongoing" | "resolved" | "closed";
+  priority: "low" | "medium" | "high" | "urgent";
   images?: string[];
-  createdAt: string;
   resolvedAt?: string;
-  resolution?: string;
+  raisedBy: string;
+  createdAt: string;
+  updatedAt?: string;
 };
-
-// Mock data for demonstration
-const mockIssues: TIssue[] = [
-  {
-    _id: "1",
-    title: "Login page not loading",
-    description:
-      "Users are unable to access the login page. Getting a 500 error.",
-    status: "Pending",
-    priority: "High",
-    category: "Bug",
-    images: ["https://via.placeholder.com/100"],
-    createdAt: "2026-05-25T10:00:00Z",
-  },
-  {
-    _id: "2",
-    title: "Dashboard data not showing",
-    description:
-      "The dashboard is not displaying the latest data. Charts are empty.",
-    status: "Ongoing",
-    priority: "Urgent",
-    category: "Bug",
-    images: [],
-    createdAt: "2026-05-24T14:30:00Z",
-    resolvedAt: "2026-05-25T09:00:00Z",
-    resolution: "Fixed the API endpoint issue",
-  },
-  {
-    _id: "3",
-    title: "Mobile responsive issue",
-    description: "The website is not displaying correctly on mobile devices.",
-    status: "Resolved",
-    priority: "Medium",
-    category: "UI/UX",
-    images: ["https://via.placeholder.com/100"],
-    createdAt: "2026-05-23T09:15:00Z",
-    resolution: "Fixed with CSS media queries",
-  },
-  {
-    _id: "4",
-    title: "Payment gateway timeout",
-    description:
-      "Users are experiencing timeout issues during payment processing.",
-    status: "Ongoing",
-    priority: "Urgent",
-    category: "Payment",
-    images: [],
-    createdAt: "2026-05-26T08:00:00Z",
-  },
-  {
-    _id: "5",
-    title: "Email notification not sending",
-    description:
-      "System is not sending email notifications for order confirmations.",
-    status: "Pending",
-    priority: "High",
-    category: "Notification",
-    images: [],
-    createdAt: "2026-05-25T16:20:00Z",
-  },
-  {
-    _id: "6",
-    title: "Search functionality broken",
-    description:
-      "Search bar is not returning correct results for product queries.",
-    status: "Resolved",
-    priority: "Medium",
-    category: "Feature",
-    images: ["https://via.placeholder.com/100"],
-    createdAt: "2026-05-22T11:00:00Z",
-    resolvedAt: "2026-05-24T15:30:00Z",
-    resolution: "Fixed indexing issue in search algorithm",
-  },
-];
 
 // Get status icon and color
 export const getStatusConfig = (status: string) => {
   switch (status) {
-    case "Pending":
+    case "pending":
       return {
         icon: <FaRegClock size={14} />,
         color: "text-yellow-600",
         bg: "bg-yellow-50 border-yellow-200",
       };
-    case "Ongoing":
+    case "ongoing":
       return {
         icon: <FiClock size={14} />,
         color: "text-blue-600",
         bg: "bg-blue-50 border-blue-200",
       };
-    case "Resolved":
+    case "answered":
       return {
         icon: <FiCheckCircle size={14} />,
         color: "text-green-600",
         bg: "bg-green-50 border-green-200",
       };
-    case "Closed":
+    case "closed":
       return {
         icon: <FiAlertCircle size={14} />,
         color: "text-gray-600",
@@ -141,13 +69,13 @@ export const getStatusConfig = (status: string) => {
 // Get priority color
 export const getPriorityColor = (priority: string) => {
   switch (priority) {
-    case "Urgent":
+    case "urgent":
       return "bg-red-100 text-red-700";
-    case "High":
+    case "high":
       return "bg-orange-100 text-orange-700";
-    case "Medium":
+    case "medium":
       return "bg-yellow-100 text-yellow-700";
-    case "Low":
+    case "low":
       return "bg-green-100 text-green-700";
     default:
       return "bg-gray-100 text-gray-700";
@@ -155,30 +83,37 @@ export const getPriorityColor = (priority: string) => {
 };
 
 const Issues = () => {
-  const [statusFilter, setStatusFilter] = useState<string>("All");
-  const [priorityFilter, setPriorityFilter] = useState<string>("All");
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [priorityFilter, setPriorityFilter] = useState<string>("");
   const [selectedIssue, setSelectedIssue] = useState<TIssue | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const { data, isLoading, isFetching } = useGetMyRaisedIssuesQuery({
+    status: statusFilter,
+    priority: priorityFilter,
+  });
+  const issues = data?.data?.data || [];
+  const statsData = data?.data?.stats || [];
+
   // Statistics
   const stats = {
-    total: mockIssues.length,
-    pending: mockIssues.filter((i) => i.status === "Pending").length,
-    ongoing: mockIssues.filter((i) => i.status === "Ongoing").length,
-    resolved: mockIssues.filter((i) => i.status === "Resolved").length,
-    urgent: mockIssues.filter((i) => i.priority === "Urgent").length,
+    total: statsData?.total || 0,
+    pending: statsData?.pending || 0,
+    ongoing: statsData?.ongoing || 0,
+    answered: statsData?.answered || 0,
+    closed: statsData?.closed || 0,
   };
 
   // Status options for filter pills
   const statusOptions = [
     {
-      value: "All",
+      value: "",
       label: "All Issues",
       count: stats.total,
       icon: <FiGrid size={14} />,
     },
     {
-      value: "Pending",
+      value: "pending",
       label: "Pending",
       count: stats.pending,
       icon: <FaRegClock size={14} />,
@@ -186,7 +121,7 @@ const Issues = () => {
       bg: "bg-yellow-50",
     },
     {
-      value: "Ongoing",
+      value: "ongoing",
       label: "Ongoing",
       count: stats.ongoing,
       icon: <FiClock size={14} />,
@@ -194,9 +129,9 @@ const Issues = () => {
       bg: "bg-blue-50",
     },
     {
-      value: "Resolved",
-      label: "Resolved",
-      count: stats.resolved,
+      value: "answered",
+      label: "Answered",
+      count: stats.answered,
       icon: <FiCheckCircle size={14} />,
       color: "text-green-600",
       bg: "bg-green-50",
@@ -213,24 +148,16 @@ const Issues = () => {
 
   // Priority options
   const priorityOptions = [
-    { value: "All", label: "All Priorities" },
-    { value: "Urgent", label: "Urgent", color: "bg-red-100 text-red-700" },
-    { value: "High", label: "High", color: "bg-orange-100 text-orange-700" },
+    { value: "", label: "All Priorities" },
+    { value: "urgent", label: "Urgent", color: "bg-red-100 text-red-700" },
+    { value: "high", label: "High", color: "bg-orange-100 text-orange-700" },
     {
-      value: "Medium",
+      value: "medium",
       label: "Medium",
       color: "bg-yellow-100 text-yellow-700",
     },
-    { value: "Low", label: "Low", color: "bg-green-100 text-green-700" },
+    { value: "low", label: "Low", color: "bg-green-100 text-green-700" },
   ];
-
-  // Filter issues
-  const filteredIssues = mockIssues.filter((issue) => {
-    if (statusFilter !== "All" && issue.status !== statusFilter) return false;
-    if (priorityFilter !== "All" && issue.priority !== priorityFilter)
-      return false;
-    return true;
-  });
 
   return (
     <div className="space-y-6 font-Nunito">
@@ -259,7 +186,7 @@ const Issues = () => {
 
       {/* Modern Filter Bar */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap md:flex-nowrap items-center justify-between gap-4">
           {/* Status Filter Pills */}
           <div className="flex w-full overflow-x-auto text-nowrap gap-2">
             {statusOptions.map((option) => (
@@ -303,21 +230,25 @@ const Issues = () => {
       </div>
 
       {/* Issues */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredIssues.map((issue) => {
-          return (
-            <IssueCard
-              key={issue._id}
-              issue={issue}
-              setSelectedIssue={setSelectedIssue}
-              setIsModalOpen={setIsModalOpen}
-            />
-          );
-        })}
-      </div>
+      {isLoading || isFetching ? (
+        <Loader />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {issues?.map((issue: TIssue) => {
+            return (
+              <IssueCard
+                key={issue._id}
+                issue={issue}
+                setSelectedIssue={setSelectedIssue}
+                setIsModalOpen={setIsModalOpen}
+              />
+            );
+          })}
+        </div>
+      )}
 
       {/* No Results */}
-      {filteredIssues.length === 0 && (
+      {(!isLoading || !isFetching) &&issues?.length === 0 && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
           <FiAlertCircle size={48} className="mx-auto text-gray-400 mb-3" />
           <h3 className="text-lg font-medium text-gray-900 mb-1">
@@ -375,7 +306,7 @@ const Issues = () => {
                       {getStatusConfig(selectedIssue.status).icon}
                     </span>
                     <span
-                      className={`font-medium ${getStatusConfig(selectedIssue.status).color}`}
+                      className={`font-medium capitalize ${getStatusConfig(selectedIssue.status).color}`}
                     >
                       {selectedIssue.status}
                     </span>
@@ -388,7 +319,7 @@ const Issues = () => {
                   </label>
                   <div className="mt-2">
                     <span
-                      className={`inline-block px-3 py-1 rounded-lg font-medium ${getPriorityColor(selectedIssue.priority)}`}
+                      className={`inline-block px-3 py-1 rounded-lg font-medium capitalize ${getPriorityColor(selectedIssue.priority)}`}
                     >
                       {selectedIssue.priority}
                     </span>
@@ -417,18 +348,6 @@ const Issues = () => {
                   </div>
                 )}
               </div>
-
-              {/* Resolution */}
-              {selectedIssue.resolution && (
-                <div>
-                  <label className="font-medium text-neutral-10">
-                    Feedback
-                  </label>
-                  <p className="text-gray-700 bg-green-50 p-3 rounded-lg mt-1 text-sm">
-                    {selectedIssue.resolution}
-                  </p>
-                </div>
-              )}
 
               {/* Images */}
               {selectedIssue.images && selectedIssue.images.length > 0 && (

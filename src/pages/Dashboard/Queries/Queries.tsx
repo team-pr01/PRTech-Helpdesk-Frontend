@@ -6,6 +6,7 @@ import Button from "../../../components/Reusable/Button/Button";
 import { Link } from "react-router-dom";
 import QueryCard from "../../../components/QueryPage/QueryCard/QueryCard";
 import { useGetMyQueriesQuery } from "../../../redux/Features/queries/queriesApi";
+import Loader from "../../../components/Reusable/Loader/Loader";
 
 // Types
 export type TQuery = {
@@ -27,7 +28,7 @@ const Queries = () => {
     "" | "pending" | "answered" | "closed"
   >("");
 
-  const { data } = useGetMyQueriesQuery({
+  const { data, isLoading, isFetching } = useGetMyQueriesQuery({
     status: activeTab,
   });
   const queries = data?.data?.data || [];
@@ -88,11 +89,15 @@ const Queries = () => {
       </div>
 
       {/* Q&A Cards - Forum Style */}
-      <div className="space-y-4">
-        {queries?.map((query: TQuery) => (
-          <QueryCard key={query._id} query={query} />
-        ))}
-      </div>
+      {isLoading || isFetching ? (
+        <Loader />
+      ) : (
+        <div className="space-y-4">
+          {queries?.map((query: TQuery) => (
+            <QueryCard key={query._id} query={query} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

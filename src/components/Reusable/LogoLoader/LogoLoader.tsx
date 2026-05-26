@@ -78,7 +78,7 @@ const LogoLoader = ({
           exit="exit"
           className=""
         >
-          <div className="relative flex flex-col items-center">
+          <div className="relative flex flex-col items-center justify-center">
             {/* Subtle background glow */}
             <motion.div
               className="absolute inset-0"
