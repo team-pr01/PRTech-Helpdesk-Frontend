@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+//* eslint-disable @typescript-eslint/no-explicit-any */
 import { baseApi } from "../../API/baseApi";
 
 const queriesApi = baseApi.injectEndpoints({
@@ -39,75 +40,65 @@ const queriesApi = baseApi.injectEndpoints({
         if (dateTo) params.append("dateTo", dateTo);
 
         return {
-          url: `/queries?${params.toString()}`,
+          url: `/query?${params.toString()}`,
           method: "GET",
           credentials: "include",
         };
       },
-      providesTags: ["queries"],
+      providesTags: ["query"],
     }),
 
     // Get single query by ID
     getSingleQuery: builder.query({
       query: (id) => ({
-        url: `/queries/${id}`,
+        url: `/query/${id}`,
         method: "GET",
         credentials: "include",
       }),
-      providesTags: ["queries"],
+      providesTags: ["query"],
     }),
 
     // Add new query
-    addQuery: builder.mutation<any, FormData>({
-      query: (formData) => ({
-        url: `/queries/add`,
+    addQuery: builder.mutation<any, any>({
+      query: (data) => ({
+        url: `/query/raise`,
         method: "POST",
-        body: formData,
+        body: data,
         credentials: "include",
       }),
-      invalidatesTags: ["queries"],
+      invalidatesTags: ["query"],
     }),
 
     // Update query (answer query)
     updateQuery: builder.mutation<any, { id: string; data: any }>({
       query: ({ id, data }) => ({
-        url: `/queries/update/${id}`,
+        url: `/query/update/${id}`,
         method: "PUT",
         body: data,
         credentials: "include",
       }),
-      invalidatesTags: ["queries"],
+      invalidatesTags: ["query"],
     }),
 
     // Delete query
     deleteQuery: builder.mutation<any, string>({
       query: (id) => ({
-        url: `/queries/delete/${id}`,
+        url: `/query/delete/${id}`,
         method: "DELETE",
         credentials: "include",
       }),
-      invalidatesTags: ["queries"],
+      invalidatesTags: ["query"],
     }),
 
     // Answer a query (update status and add answer)
     answerQuery: builder.mutation<any, { id: string; answer: string }>({
       query: ({ id, answer }) => ({
-        url: `/queries/answer/${id}`,
+        url: `/query/answer/${id}`,
         method: "PATCH",
         body: { answer, status: "Answered" },
         credentials: "include",
       }),
-      invalidatesTags: ["queries"],
-    }),
-
-    // Get query statistics
-    getQueryStatistics: builder.query({
-      query: () => ({
-        url: `/queries/statistics`,
-        method: "GET",
-        credentials: "include",
-      }),
-      providesTags: ["queries"],
+      invalidatesTags: ["query"],
     }),
 
     // Get my queries (for logged-in user)
@@ -117,25 +108,28 @@ const queriesApi = baseApi.injectEndpoints({
         limit,
         skip,
         status,
+        queryType
       }: {
         page?: number;
         limit?: number;
         skip?: number;
         status?: string;
+        queryType?: string
       } = {}) => {
         const params = new URLSearchParams();
         if (typeof limit === "number") params.append("limit", limit.toString());
         if (typeof skip === "number") params.append("skip", skip.toString());
         if (typeof page === "number") params.append("page", page.toString());
         if (status) params.append("status", status);
+        if (queryType) params.append("queryType", queryType);
         
         return {
-          url: `/queries/my-queries?${params.toString()}`,
+          url: `/query/my-queries?${params.toString()}`,
           method: "GET",
           credentials: "include",
         };
       },
-      providesTags: ["queries"],
+      providesTags: ["query"],
     }),
   }),
 });
@@ -147,6 +141,5 @@ export const {
   useUpdateQueryMutation,
   useDeleteQueryMutation,
   useAnswerQueryMutation,
-  useGetQueryStatisticsQuery,
   useGetMyQueriesQuery,
 } = queriesApi;

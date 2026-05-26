@@ -5,78 +5,41 @@ import { MdOutlineForum } from "react-icons/md";
 import Button from "../../../components/Reusable/Button/Button";
 import { Link } from "react-router-dom";
 import QueryCard from "../../../components/QueryPage/QueryCard/QueryCard";
+import { useGetMyQueriesQuery } from "../../../redux/Features/queries/queriesApi";
 
 // Types
 export type TQuery = {
   _id: string;
-  title: string;
+  subject: string;
   description: string;
-  status: "Pending" | "Answered" | "Closed";
-  priority: "Low" | "Medium" | "High";
-  category: string;
-  createdAt: string;
+  status: "pending" | "answered" | "closed";
+  priority: "low" | "medium" | "high";
+  queryType: string;
   answeredAt?: string;
   answer?: string;
-  askedBy: {
-    name: string;
-    email: string;
-  };
-  helpful?: number;
+  raisedBy: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
-// Mock data
-const mockQueries: TQuery[] = [
-  {
-    _id: "1",
-    title: "How to integrate payment gateway?",
-    description:
-      "I'm trying to integrate Stripe payment gateway but facing issues with webhook configuration.",
-    status: "Answered",
-    priority: "High",
-    category: "Integration",
-    createdAt: "2026-05-25T10:00:00Z",
-    answeredAt: "2026-05-26T09:00:00Z",
-    answer:
-      "You need to configure the webhook endpoint in your Stripe dashboard. Here's a step-by-step guide.You need to configure the webhook endpoint in your Stripe dashboard. Here's a step-by-step guide.You need to configure the webhook endpoint in your Stripe dashboard. Here's a step-by-step guide.",
-    askedBy: { name: "John Doe", email: "john@example.com" },
-    helpful: 12,
-  },
-  {
-    _id: "2",
-    title: "API rate limiting explanation",
-    description:
-      "Can you explain how the API rate limiting works? What are the limits per minute?",
-    status: "Answered",
-    priority: "Medium",
-    category: "API",
-    createdAt: "2026-05-24T14:30:00Z",
-    answeredAt: "2026-05-25T11:00:00Z",
-    answer: "Our API allows 100 requests per minute per API key.",
-    askedBy: { name: "Jane Smith", email: "jane@example.com" },
-    helpful: 8,
-  },
-  {
-    _id: "3",
-    title: "Dashboard not showing latest data",
-    description: "The dashboard is showing outdated data.",
-    status: "Pending",
-    priority: "High",
-    category: "Bug",
-    createdAt: "2026-05-26T08:00:00Z",
-    askedBy: { name: "Alice Johnson", email: "alice@example.com" },
-  },
-];
-
 const Queries = () => {
+  const [activeTab, setActiveTab] = useState<
+    "" | "pending" | "answered" | "closed"
+  >("");
+
+  const { data } = useGetMyQueriesQuery({
+    status: activeTab,
+  });
+  const queries = data?.data?.data || [];
   const tabs = [
     {
-      id: "all",
+      id: "",
       label: "All",
       icon: <FiCheckCircle size={16} />,
     },
     {
-      id: "unanswered",
-      label: "Unanswered",
+      id: "pending",
+      label: "Pending",
       icon: <FiMessageSquare size={16} />,
     },
     {
@@ -85,16 +48,6 @@ const Queries = () => {
       icon: <FiCheckCircle size={16} />,
     },
   ];
-  const [activeTab, setActiveTab] = useState<"all" | "unanswered" | "answered">(
-    "all",
-  );
-
-  // Filter queries
-  const filteredQueries = mockQueries.filter((query) => {
-    if (activeTab === "unanswered" && query.status !== "Pending") return false;
-    if (activeTab === "answered" && query.status !== "Answered") return false;
-    return true;
-  });
 
   return (
     <div className="">
@@ -136,7 +89,7 @@ const Queries = () => {
 
       {/* Q&A Cards - Forum Style */}
       <div className="space-y-4">
-        {filteredQueries.map((query) => (
+        {queries?.map((query: TQuery) => (
           <QueryCard key={query._id} query={query} />
         ))}
       </div>

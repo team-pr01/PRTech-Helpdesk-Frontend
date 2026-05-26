@@ -11,8 +11,8 @@ import { useAddQueryMutation } from "../../../redux/Features/queries/queriesApi"
 
 type RaiseQueryFormData = {
   subject: string;
-  message: string;
-  priority: "Low" | "Medium" | "High";
+  description: string;
+  priority: "low" | "medium" | "high";
   queryType: "Technical" | "Billing" | "Feature Request" | "General" | "Other";
 };
 
@@ -27,42 +27,49 @@ const RaiseQuery = () => {
   } = useForm<RaiseQueryFormData>({
     defaultValues: {
       subject: "",
-      message: "",
-      priority: "Medium",
-      queryType: "General",
+      description: "",
+      priority: "medium",
+      queryType: "Technical",
     },
   });
 
   const [addQuery] = useAddQueryMutation();
 
   // Options for dropdowns
-  const priorityOptions = ["Low", "Medium", "High"];
-  const queryTypeOptions = ["Technical", "Billing", "Feature Request", "General", "Other"];
+  const priorityOptions = ["low", "medium", "high"];
+  const queryTypeOptions = [
+    "Technical",
+    "Billing",
+    "Feature Request",
+    "General",
+    "Other",
+  ];
 
   const handleSubmitQuery = async (data: RaiseQueryFormData) => {
     try {
-      const formData = new FormData();
+      const payload = {
+        subject: data.subject,
+        description: data.description,
+        priority: data.priority,
+        queryType: data.queryType,
+      };
 
-      // Append form fields
-      formData.append("subject", data.subject);
-      formData.append("message", data.message);
-      formData.append("priority", data.priority);
-      formData.append("queryType", data.queryType);
+      const result = await addQuery(payload).unwrap();
 
-      const result = await addQuery(formData).unwrap();
-      
       if (result.success) {
-        toast.success("Query submitted successfully! Our team will respond shortly.");
+        toast.success(
+          "Query submitted successfully! Our team will respond shortly.",
+        );
         // Reset form
         reset();
-        
-        // Navigate back to queries page after 2 seconds
         setTimeout(() => {
           navigate("/dashboard/queries");
         }, 2000);
       }
     } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to submit query. Please try again.");
+      toast.error(
+        error?.data?.message || "Failed to submit query. Please try again.",
+      );
     }
   };
 
@@ -118,12 +125,12 @@ const RaiseQuery = () => {
       <Textarea
         label="Message"
         placeholder="Please provide detailed information about your question..."
-        error={errors.message}
-        {...register("message", {
-          required: "Message is required",
+        error={errors.description}
+        {...register("description", {
+          required: "Description is required",
           minLength: {
             value: 10,
-            message: "Message must be at least 10 characters",
+            message: "Description must be at least 10 characters",
           },
         })}
       />
@@ -137,8 +144,8 @@ const RaiseQuery = () => {
               <span className="font-medium">What happens next?</span>
             </p>
             <p className="text-sm text-neutral-20 mt-1">
-              Our support team will review your query and respond within 24-48 hours. 
-              You'll receive a notification when someone answers.
+              Our support team will review your query and respond within 24-48
+              hours. You'll receive a notification when someone answers.
             </p>
           </div>
         </div>

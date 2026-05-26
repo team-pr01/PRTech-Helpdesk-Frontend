@@ -6,7 +6,7 @@ import { useState } from "react";
 const QueryCard = ({ query }: { query: TQuery }) => {
   const [expandedQueryId, setExpandedQueryId] = useState<string | null>(null);
   const getStatusBadge = (status: string) => {
-    if (status === "Answered") {
+    if (status === "answered") {
       return (
         <div className="flex items-center gap-1 text-green-600 text-sm">
           <FiCheckCircle size={14} /> Answered
@@ -22,13 +22,13 @@ const QueryCard = ({ query }: { query: TQuery }) => {
 
   const getPriorityBadge = (priority: string) => {
     const colors = {
-      High: "bg-red-100 text-red-700 border-red-200",
-      Medium: "bg-orange-100 text-orange-700 border-orange-200",
-      Low: "bg-green-100 text-green-700 border-green-200",
+      high: "bg-red-100 text-red-700 border-red-200",
+      medium: "bg-orange-100 text-orange-700 border-orange-200",
+      low: "bg-green-100 text-green-700 border-green-200",
     };
     return (
       <span
-        className={`px-2 py-0.5 rounded-full text-xs font-medium border h-fit mt-1.5 ${colors[priority as keyof typeof colors]}`}
+        className={`px-2 py-0.5 rounded-full text-xs font-medium border h-fit mt-1.5 capitalize ${colors[priority as keyof typeof colors]}`}
       >
         {priority}
       </span>
@@ -44,9 +44,9 @@ const QueryCard = ({ query }: { query: TQuery }) => {
         <div className="flex-1">
           <div className="flex gap-2 mb-2">
             <h3 className="text-lg font-semibold text-gray-800 hover:text-primary-10 transition-colors">
-              {query.title}
+              {query?.subject}
             </h3>
-            {getPriorityBadge(query.priority)}
+            {getPriorityBadge(query?.priority)}
           </div>
 
           {/* Status - For Mobile*/}
@@ -67,7 +67,7 @@ const QueryCard = ({ query }: { query: TQuery }) => {
               {formatDate(query.createdAt)}
             </span>
             <span className="capitalize px-2 py-0.5 rounded-full bg-gray-100">
-              {query.category}
+              {query.queryType}
             </span>
           </div>
         </div>
@@ -84,7 +84,7 @@ const QueryCard = ({ query }: { query: TQuery }) => {
       </div>
 
       {/* Answer Preview if answered */}
-      {query.status === "Answered" && query.answer && (
+      {query.status === "answered" && query.answer && (
         <div className="mt-3 pl-3 border-l-2 border-indigo-200">
           <div className="flex items-center gap-2 text-xs text-primary-10 mb-1">
             <FiThumbsUp size={12} />
