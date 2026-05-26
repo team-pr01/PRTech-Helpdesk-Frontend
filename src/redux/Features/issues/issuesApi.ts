@@ -3,25 +3,30 @@ import { baseApi } from "../../API/baseApi";
 
 const issuesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAllClients: builder.query({
+    // ========== ISSUES APIs ==========
+    
+    // Get all issues with filters and pagination
+    getAllIssues: builder.query({
       query: ({
         page,
         limit,
         skip,
         status,
+        priority,
+        category,
         keyword,
-        source,
-        industry,
-        country
+        dateFrom,
+        dateTo,
       }: {
         keyword?: string;
         limit?: number;
         skip?: number;
         page?: number;
         status?: string;
-        source?: string;
-        industry?: string;
-        country?: string;
+        priority?: string;
+        category?: string;
+        dateFrom?: string;
+        dateTo?: string;
       } = {}) => {
         const params = new URLSearchParams();
 
@@ -30,96 +35,121 @@ const issuesApi = baseApi.injectEndpoints({
         if (typeof skip === "number") params.append("skip", skip.toString());
         if (typeof page === "number") params.append("page", page.toString());
         if (status) params.append("status", status);
-        if (source) params.append("source", source);
-        if (industry) params.append("industry", industry);
-        if (country) params.append("country", country);
+        if (priority) params.append("priority", priority);
+        if (category) params.append("category", category);
+        if (dateFrom) params.append("dateFrom", dateFrom);
+        if (dateTo) params.append("dateTo", dateTo);
 
         return {
-          url: `/client?${params.toString()}`,
+          url: `/issues?${params.toString()}`,
           method: "GET",
           credentials: "include",
         };
       },
-      providesTags: ["client"],
+      providesTags: ["issues"],
     }),
 
-    getSingleClientById: builder.query({
+    // Get single issue by ID
+    getSingleIssue: builder.query({
       query: (id) => ({
-        url: `/client/${id}`,
+        url: `/issues/${id}`,
         method: "GET",
         credentials: "include",
       }),
-      providesTags: ["client"],
+      providesTags: ["issues"],
     }),
 
-    addClient: builder.mutation<any, any>({
+    // Add new issue (raise issue)
+    addIssue: builder.mutation<any, any>({
       query: (data) => ({
-        url: `/client/add`,
+        url: `/issues/add`,
         method: "POST",
         body: data,
         credentials: "include",
       }),
-      invalidatesTags: ["client"],
+      invalidatesTags: ["issues"],
     }),
 
-    updateClient: builder.mutation<any, any>({
+    // Update issue
+    updateIssue: builder.mutation<any, any>({
       query: ({ id, data }) => ({
-        url: `/client/update/${id}`,
+        url: `/issues/update/${id}`,
         method: "PUT",
         body: data,
         credentials: "include",
       }),
-      invalidatesTags: ["client"],
+      invalidatesTags: ["issues"],
     }),
 
-    deleteClient: builder.mutation<any, any>({
+    // Delete issue
+    deleteIssue: builder.mutation<any, any>({
       query: (id) => ({
-        url: `/client/delete/${id}`,
+        url: `/issues/delete/${id}`,
         method: "DELETE",
         credentials: "include",
       }),
-      invalidatesTags: ["client"],
+      invalidatesTags: ["issues"],
     }),
 
-    addSubordinate: builder.mutation<any, any>({
-      query: ({ clientId, data }) => ({
-        url: `/client/${clientId}/subordinate/add`,
-        method: "POST",
-        body: data,
+    // Update issue status only
+    updateIssueStatus: builder.mutation<any, any>({
+      query: ({ id, status }) => ({
+        url: `/issues/status/${id}`,
+        method: "PATCH",
+        body: { status },
         credentials: "include",
       }),
-      invalidatesTags: ["client"],
+      invalidatesTags: ["issues"],
     }),
 
-    updateSubordinate: builder.mutation<any, any>({
-      query: ({ clientId, subordinateId, data }) => ({
-        url: `/client/${clientId}/subordinate/update/${subordinateId}`,
-        method: "PUT",
-        body: data,
+    // Get issue statistics
+    getIssueStatistics: builder.query({
+      query: () => ({
+        url: `/issues/statistics`,
+        method: "GET",
         credentials: "include",
       }),
-      invalidatesTags: ["client"],
+      providesTags: ["issues"],
     }),
 
-    deleteSubordinate: builder.mutation<any, any>({
-      query: ({ clientId, subordinateId, data }) => ({
-        url: `/client/${clientId}/subordinate/delete/${subordinateId}`,
+    // Upload issue attachments
+    uploadIssueAttachments: builder.mutation<any, any>({
+      query: ({ id, files }) => {
+        const formData = new FormData();
+        files.forEach((file: File) => {
+          formData.append("attachments", file);
+        });
+        return {
+          url: `/issues/${id}/attachments`,
+          method: "POST",
+          body: formData,
+          credentials: "include",
+        };
+      },
+      invalidatesTags: ["issues"],
+    }),
+
+    // Delete issue attachment
+    deleteIssueAttachment: builder.mutation<any, any>({
+      query: ({ issueId, attachmentId }) => ({
+        url: `/issues/${issueId}/attachments/${attachmentId}`,
         method: "DELETE",
-        body: data,
         credentials: "include",
       }),
-      invalidatesTags: ["client"],
+      invalidatesTags: ["issues"],
     }),
   }),
 });
 
 export const {
-  useGetAllClientsQuery,
-  useGetSingleClientByIdQuery,
-  useAddClientMutation,
-  useUpdateClientMutation,
-  useDeleteClientMutation,
-  useAddSubordinateMutation,
-  useUpdateSubordinateMutation,
-  useDeleteSubordinateMutation,
+  // Issues hooks
+  useGetAllIssuesQuery,
+  useGetSingleIssueQuery,
+  useAddIssueMutation,
+  useUpdateIssueMutation,
+  useDeleteIssueMutation,
+  useUpdateIssueStatusMutation,
+  useGetIssueStatisticsQuery,
+  useUploadIssueAttachmentsMutation,
+  useDeleteIssueAttachmentMutation,
 } = issuesApi;

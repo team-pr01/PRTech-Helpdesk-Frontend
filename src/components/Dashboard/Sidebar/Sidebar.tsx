@@ -34,7 +34,7 @@ const Sidebar = () => {
 
           <button
             onClick={handleLogout}
-            className={`text-lg flex items-center justify-center gap-2 rounded-lg p-2 transform transition-transform duration-500 hover:-translate-y-1 bg-primary-10 text-white font-semibold cursor-pointer w-full`}
+            className={`flex items-center justify-center gap-2 border border-neutral-20/30 rounded-2xl py-2 text-primary-10`}
           >
             <TbLogout2 className="text-xl" />
             Sign Out

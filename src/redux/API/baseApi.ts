@@ -54,15 +54,8 @@ export const baseApi = createApi({
   refetchOnReconnect: true,
   refetchOnFocus: true,
   tagTypes: [
-    "admin",
-    "users",
-    "staff",
-    "client",
-    "project",
-    "lead",
-    "category",
-    "account",
-    "niche"
+    "issues",
+    "queries",
   ],
   endpoints: () => ({}),
 });
