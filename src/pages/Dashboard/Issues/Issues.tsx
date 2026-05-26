@@ -5,13 +5,14 @@ import {
   FiClock,
   FiImage,
   FiCalendar,
-  FiActivity,
   FiGrid,
+  FiZap,
 } from "react-icons/fi";
-import { FaBug, FaRegClock } from "react-icons/fa";
+import { FaRegClock } from "react-icons/fa";
 import { formatDate } from "../../../utils/formatDate";
 import { Link } from "react-router-dom";
 import Button from "../../../components/Reusable/Button/Button";
+import { MdKeyboardArrowRight } from "react-icons/md";
 
 // Types
 type TIssue = {
@@ -238,66 +239,19 @@ const Issues = () => {
 
   return (
     <div className="space-y-6 font-Nunito">
-      {/* Premium Header with Gradient */}
-      <div className="relative overflow-hidden bg-gradient-primary rounded-2xl shadow-lg">
-        {/* Decorative shapes */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24"></div>
-        <div className="absolute top-1/2 right-1/4 w-32 h-32 bg-accent-10/20 rounded-full"></div>
 
-        <div className="relative p-8">
-          <div className="flex items-center justify-between">
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
-                  <FaBug size={28} className="text-white" />
-                </div>
-                <div>
-                  <h1 className="text-3xl font-bold text-white">
-                    Issue Tracker
-                  </h1>
-                  <p className="text-white/80 mt-1">
-                    Track, manage, and resolve issues efficiently
-                  </p>
-                </div>
-              </div>
-
-              {/* Quick stats */}
-              <div className="flex gap-4 mt-4">
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
-                  <p className="text-white/70 text-xs">Total Issues</p>
-                  <p className="text-white text-2xl font-bold">{stats.total}</p>
-                </div>
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
-                  <p className="text-white/70 text-xs">Pending</p>
-                  <p className="text-white text-2xl font-bold">
-                    {stats.pending}
-                  </p>
-                </div>
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
-                  <p className="text-white/70 text-xs">Ongoing</p>
-                  <p className="text-white text-2xl font-bold">
-                    {stats.ongoing}
-                  </p>
-                </div>
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
-                  <p className="text-white/70 text-xs">Resolved</p>
-                  <p className="text-white text-2xl font-bold">
-                    {stats.resolved}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <Link
-              to="/dashboard/raise-issue"
-              className="bg-white text-primary-10 px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 flex items-center gap-2"
-            >
-              <FiActivity size={18} />
-              Report New Issue
-            </Link>
-          </div>
+      {/* Featured Question Card */}
+      <div className="bg-gradient-primary rounded-2xl p-6 mb-6 text-white shadow-xl">
+        <div className="flex items-center gap-2 mb-3">
+          <FiZap className="text-yellow-300" size={18} />
+    <span className="text-sm font-medium text-yellow-200">Quick Actions</span>
         </div>
+        <h3 className="text-xl font-semibold mb-2">Got any issue with your system?</h3>
+        <p className="text-indigo-100 mb-4">A comprehensive guide to integrate our API into your application...</p>
+        <Link to="/dashboard/raise-issue" className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 w-fit">
+          Raise an Issue
+          <MdKeyboardArrowRight />
+        </Link>
       </div>
 
       {/* Modern Filter Bar */}

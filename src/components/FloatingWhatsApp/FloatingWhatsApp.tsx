@@ -90,14 +90,6 @@ const FloatingWhatsApp = () => {
           1
         </span>
       </button>
-
-      {/* Status indicator */}
-      <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 mt-1">
-        <div className="flex items-center gap-1">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <span className="text-xs text-gray-600 whitespace-nowrap">Online</span>
-        </div>
-      </div>
     </div>
   );
 };
