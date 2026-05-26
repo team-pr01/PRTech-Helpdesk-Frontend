@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useForm } from "react-hook-form";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import {
   useAddIssueMutation,
@@ -12,19 +12,22 @@ import Textarea from "../../../components/Reusable/TextArea/TextArea";
 import SelectDropdown from "../../../components/Reusable/SelectDropdown/SelectDropdown";
 import Button from "../../../components/Reusable/Button/Button";
 import { Link, useParams } from "react-router-dom";
-import { FiArrowLeft } from "react-icons/fi";
+import { FiArrowLeft, FiX, FiUpload } from "react-icons/fi";
 
 type RaiseOrEditIssueFormData = {
   title: string;
   description: string;
   priority: "Low" | "Medium" | "High" | "Urgent";
-  images?: string[];
   status?: "Pending" | "Ongoing" | "Resolved" | "Closed";
   resolution?: string;
 };
 
 const RaiseOrEditIssue = () => {
   const { id } = useParams();
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
+
   const { data: issueData, isLoading: isLoadingIssue } = useGetSingleIssueQuery(
     id!,
     { skip: !id },
@@ -35,13 +38,11 @@ const RaiseOrEditIssue = () => {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-    setValue,
   } = useForm<RaiseOrEditIssueFormData>({
     defaultValues: {
       title: "",
       description: "",
       priority: "Medium",
-      images: [],
       status: "Pending",
       resolution: "",
     },
@@ -52,7 +53,6 @@ const RaiseOrEditIssue = () => {
 
   // Options for dropdowns
   const priorityOptions = ["Low", "Medium", "High", "Urgent"];
-
   const statusOptions = ["Pending", "Ongoing", "Resolved", "Closed"];
 
   // Set default values when editing
@@ -63,31 +63,104 @@ const RaiseOrEditIssue = () => {
         title: issue.title || "",
         description: issue.description || "",
         priority: issue.priority || "Medium",
-        images: issue.images || [],
         status: issue.status || "Pending",
         resolution: issue.resolution || "",
       });
+
+      // Set existing images
+      if (issue.images && issue.images.length > 0) {
+        setExistingImages(issue.images);
+      }
     }
-  }, [issueData, reset]);
+  }, [issueData, reset, id]);
+
+  // Handle image selection
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+
+    // Check total images limit (max 2)
+    const totalImages = imageFiles.length + files.length;
+    if (totalImages > 2) {
+      toast.error("You can upload maximum 2 images");
+      return;
+    }
+
+    // Check file size (max 5MB each)
+    const validFiles = files.filter((file) => {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error(`${file.name} exceeds 5MB limit`);
+        return false;
+      }
+      return true;
+    });
+
+    if (validFiles.length > 0) {
+      setImageFiles([...imageFiles, ...validFiles]);
+
+      // Create preview URLs
+      const newPreviews = validFiles.map((file) => URL.createObjectURL(file));
+      setImagePreviews([...imagePreviews, ...newPreviews]);
+    }
+  };
+
+  // Remove image
+  const removeImage = (index: number, isExisting = false) => {
+    if (isExisting) {
+      setExistingImages(existingImages.filter((_, i) => i !== index));
+    } else {
+      // Revoke object URL to avoid memory leaks
+      URL.revokeObjectURL(imagePreviews[index]);
+      setImageFiles(imageFiles.filter((_, i) => i !== index));
+      setImagePreviews(imagePreviews.filter((_, i) => i !== index));
+    }
+  };
+
+  // Cleanup preview URLs on unmount
+  useEffect(() => {
+    return () => {
+      imagePreviews.forEach((preview) => URL.revokeObjectURL(preview));
+    };
+  }, [imagePreviews]);
 
   const handleSubmitIssue = async (data: RaiseOrEditIssueFormData) => {
     try {
-      const payload = {
-        ...data,
-        // If adding, status is Pending by default
-        status: !id ? "Pending" : data.status,
-      };
+      const formData = new FormData();
+
+      // Append form fields
+      formData.append("title", data.title);
+      formData.append("description", data.description);
+      formData.append("priority", data.priority);
 
       if (!id) {
-        const result = await addIssue(payload).unwrap();
+        formData.append("status", "Pending");
+      } else {
+        if (data.status) formData.append("status", data.status);
+        if (data.resolution) formData.append("resolution", data.resolution);
+      }
+
+      // Append image files
+      imageFiles.forEach((file) => {
+        formData.append("files", file);
+      });
+
+      // Append existing image URLs (for update)
+      if (existingImages.length > 0) {
+        formData.append("existingImages", JSON.stringify(existingImages));
+      }
+
+      if (!id) {
+        const result = await addIssue(formData).unwrap();
         if (result.success) {
           toast.success("Issue raised successfully");
+          // Reset form
           reset();
+          setImageFiles([]);
+          setImagePreviews([]);
         }
       } else {
         const result = await updateIssue({
           id: id!,
-          data: payload,
+          data: formData,
         }).unwrap();
         if (result.success) {
           toast.success("Issue updated successfully");
@@ -112,17 +185,15 @@ const RaiseOrEditIssue = () => {
       className="bg-white/90 backdrop-blur-sm shadow-lg rounded-2xl p-6 space-y-4"
     >
       <div className="flex items-center gap-3 mb-6">
-        <Link
-          to="/dashboard/issues"
-          aria-label="Go back"
-        >
+        <Link to="/dashboard/issues" aria-label="Go back">
           <FiArrowLeft size={24} className="text-gray-600 mt-1" />
         </Link>
         <h1 className="text-neutral-5 text-2xl font-semibold">
           {id ? "Edit" : "Raise an"} Issue
         </h1>
       </div>
-      {/* Title & Category */}
+
+      {/* Title & Priority */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <TextInput
           label="Issue Title"
@@ -169,7 +240,7 @@ const RaiseOrEditIssue = () => {
         />
       )}
 
-      {/* Resolution (Only for Edit Mode when status is Resolved/Closed) */}
+      {/* Resolution (Only for Edit Mode) */}
       {id && (
         <Textarea
           label="Resolution"
@@ -183,38 +254,88 @@ const RaiseOrEditIssue = () => {
       <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-700">
           Screenshots / Attachments
+          <span className="text-xs text-gray-400 ml-2">
+            (Max 2 images, up to 5MB each)
+          </span>
         </label>
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary-10 transition-colors cursor-pointer">
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            className="hidden"
-            id="imageUpload"
-            // Handle image upload logic here
-          />
-          <label htmlFor="imageUpload" className="cursor-pointer">
-            <div className="flex flex-col items-center gap-2">
-              <svg
-                className="w-8 h-8 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+
+        {/* Image Preview Grid */}
+        {(imagePreviews.length > 0 || existingImages.length > 0) && (
+          <div className="flex gap-3 mb-3">
+            {/* Existing Images */}
+            {existingImages.map((image, index) => (
+              <div key={`existing-${index}`} className="relative group">
+                <img
+                  src={image}
+                  alt={`Existing attachment ${index + 1}`}
+                  className="w-full h-32 object-cover rounded-lg border border-gray-200"
                 />
-              </svg>
-              <p className="text-sm text-gray-600">
-                Click to upload screenshots
-              </p>
-              <p className="text-xs text-gray-400">PNG, JPG up to 5MB</p>
-            </div>
-          </label>
-        </div>
+                <button
+                  type="button"
+                  onClick={() => removeImage(index, true)}
+                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1"
+                >
+                  <FiX size={14} />
+                </button>
+              </div>
+            ))}
+
+            {/* New Images */}
+            {imagePreviews.map((preview, index) => (
+              <div key={`new-${index}`} className="relative group">
+                <img
+                  src={preview}
+                  alt={`Attachment preview ${index + 1}`}
+                  className="size-32 object-cover rounded-lg border border-gray-200"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeImage(index, false)}
+                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1"
+                >
+                  <FiX size={14} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Upload Button */}
+        {imageFiles.length + existingImages.length < 2 && (
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary-10 transition-colors cursor-pointer">
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              className="hidden"
+              id="imageUpload"
+              onChange={handleImageSelect}
+            />
+            <label htmlFor="imageUpload" className="cursor-pointer">
+              <div className="flex flex-col items-center gap-2">
+                <FiUpload className="w-8 h-8 text-gray-400" />
+                <p className="text-sm text-gray-600">
+                  Click to upload screenshots
+                </p>
+                <p className="text-xs text-gray-400">
+                  PNG, JPG, JPEG up to 5MB each
+                </p>
+                <p className="text-xs text-primary-10">
+                  {imageFiles.length + existingImages.length}/2 images uploaded
+                </p>
+              </div>
+            </label>
+          </div>
+        )}
+
+        {/* Max images reached message */}
+        {imageFiles.length + existingImages.length >= 2 && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-center">
+            <p className="text-sm text-yellow-700">
+              Maximum 2 images reached. Remove an image to upload another.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Info Box */}
@@ -227,7 +348,9 @@ const RaiseOrEditIssue = () => {
 
       {/* Form Actions */}
       <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-        <Button type="button" variant="secondary" label="Cancel" />
+        <Link to="/dashboard/issues">
+          <Button type="button" variant="secondary" label="Cancel" />
+        </Link>
         <Button
           type="submit"
           isDisabled={isSubmitting}
