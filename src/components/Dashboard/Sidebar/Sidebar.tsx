@@ -22,19 +22,16 @@ const Sidebar = () => {
   return (
     <div className="top-0 left-0 hidden xl:block">
       <div className="w-[230px] 2xl:w-[270px] bg-white font-Nunito flex flex-col justify-between h-full gap-5">
-       <div className="pt-4">
-         <Link
-          to="/dashboard/admin/home"
-          className=""
-        >
-          <img src={IMAGES.logo} alt="Logo" className="w-39 mx-auto" />
-        </Link>
-        <hr className="border border-neutral-50/20 mt-3" />
+        <div className="pt-4">
+          <Link to="/dashboard/admin/home" className="">
+            <img src={IMAGES.logo} alt="Logo" className="w-39 mx-auto" />
+          </Link>
+          <hr className="border border-neutral-50/20 mt-3" />
 
-        <div className="flex flex-col gap-4 overflow-y-auto custom-scrollbar-sidebar p-5">
+          <div className="flex flex-col gap-4 overflow-y-auto custom-scrollbar-sidebar p-5">
             <RoleBasedNavlinks />
           </div>
-       </div>
+        </div>
         <div className="p-5">
           {/* Help Card */}
           <div className="mb-4">
@@ -42,7 +39,7 @@ const Sidebar = () => {
               {/* Decorative elements */}
               <div className="absolute top-0 right-0 w-16 h-16 bg-primary-10/5 rounded-full -mr-8 -mt-8"></div>
               <div className="absolute bottom-0 left-0 w-12 h-12 bg-primary-10/5 rounded-full -ml-6 -mb-6"></div>
-              
+
               <div className="relative z-10">
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <div className="bg-primary-10/10 p-1.5 rounded-lg">
@@ -52,19 +49,23 @@ const Sidebar = () => {
                     Got any confusion?
                   </h4>
                 </div>
-                
+
                 <p className="text-xs text-gray-600 mb-3 leading-relaxed text-center">
-                  Have questions or need assistance? Our support team is here to help you.
+                  Have questions or need assistance? Our support team is here to
+                  help you.
                 </p>
-                
-                <button
-                  onClick={() => navigate("/dashboard/queries")}
+
+                <Link
+                  to="/dashboard/raise-query"
                   className="w-full flex items-center justify-center gap-2 bg-primary-10 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-primary-20 transition-all duration-300 group"
                 >
                   <FiMessageSquare size={16} />
                   <span>Reach to Us</span>
-                  <FiArrowRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
-                </button>
+                  <FiArrowRight
+                    size={14}
+                    className="group-hover:translate-x-1 transition-transform duration-300"
+                  />
+                </Link>
               </div>
             </div>
           </div>

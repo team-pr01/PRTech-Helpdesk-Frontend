@@ -8,6 +8,7 @@ import NotFound from "../pages/NotFound/NotFound";
 import Queries from "../pages/Dashboard/Queries/Queries";
 import Issues from "../pages/Dashboard/Issues/Issues";
 import RaiseOrEditIssue from "../pages/Dashboard/Issues/RaiseOrEditIssue";
+import RaiseQuery from "../pages/Dashboard/Queries/RaiseQuery";
 
 export const router = createBrowserRouter([
   // Main layout routes
@@ -47,6 +48,10 @@ export const router = createBrowserRouter([
       {
         path: "queries",
         element: <Queries />,
+      },
+      {
+        path: "raise-query",
+        element: <RaiseQuery />,
       },
 
       {
