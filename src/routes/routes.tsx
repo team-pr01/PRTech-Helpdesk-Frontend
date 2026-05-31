@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import Login from "../pages/Auth/Login/Login";
 import AuthLayout from "./../layouts/AuthLayout";
-import ProtectedRoute from "./ProtectedRoute";
+// import ProtectedRoute from "./ProtectedRoute";
 import DashboardLayout from "../layouts/DashboardLayout";
 import ErrorComponent from "../components/Reusable/ErrorComponent/ErrorComponent";
 import NotFound from "../pages/NotFound/NotFound";
