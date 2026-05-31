@@ -100,7 +100,7 @@ const Issues = () => {
     total: statsData?.total || 0,
     pending: statsData?.pending || 0,
     ongoing: statsData?.ongoing || 0,
-    answered: statsData?.answered || 0,
+    resolved: statsData?.resolved || 0,
     closed: statsData?.closed || 0,
   };
 
@@ -129,9 +129,9 @@ const Issues = () => {
       bg: "bg-blue-50",
     },
     {
-      value: "answered",
-      label: "Answered",
-      count: stats.answered,
+      value: "resolved",
+      label: "Resolved",
+      count: stats.resolved,
       icon: <FiCheckCircle size={14} />,
       color: "text-green-600",
       bg: "bg-green-50",

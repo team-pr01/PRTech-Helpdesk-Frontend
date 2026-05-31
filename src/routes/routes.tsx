@@ -27,10 +27,13 @@ export const router = createBrowserRouter([
   {
     path: "dashboard/",
     element: (
-      <ProtectedRoute>
         <DashboardLayout />
-      </ProtectedRoute>
     ),
+    // element: (
+    //   <ProtectedRoute>
+    //     <DashboardLayout />
+    //   </ProtectedRoute>
+    // ),
     errorElement: <ErrorComponent />,
     children: [
       {

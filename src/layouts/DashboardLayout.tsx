@@ -10,7 +10,7 @@ const DashboardLayout = () => {
       <Sidebar />
 
       <div className="flex flex-col w-full min-w-0">
-        <div className="flex items-center justify-between py-4 md:pt-5 px-4 md:px-5">
+        <div className="md:hidden flex items-center justify-between py-4 md:pt-5 px-4 md:px-5">
           <img src={IMAGES.logo} alt="" className="w-28" />
           <DashboardHamburgerMenu/>
         </div>

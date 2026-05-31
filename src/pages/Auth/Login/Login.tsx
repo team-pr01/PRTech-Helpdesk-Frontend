@@ -41,13 +41,7 @@ const Login = () => {
           setUser({ user: res?.data?.user, token: res?.data?.accessToken }),
         );
       }
-      if (res?.data?.user?.role === "admin") {
-        navigate("/dashboard/admin/home");
-      } else if (res?.data?.user?.role === "staff") {
-        navigate("/dashboard/staff/leads");
-      } else {
-        navigate("/");
-      }
+      navigate("/dashboard/queries");
       reset();
     } catch (error: any) {
       console.log(error);
@@ -97,10 +91,10 @@ const Login = () => {
               error={errors.password}
               {...register("password", {
                 required: "Password is required",
-                minLength: {
-                  value: 8,
-                  message: "Password must be at least 8 characters",
-                },
+                // minLength: {
+                //   value: 8,
+                //   message: "Password must be at least 8 characters",
+                // },
               })}
               isPasswordVisible={isPasswordVisible}
               setIsPasswordVisible={setIsPasswordVisible}
