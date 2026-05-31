@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import { FiCheckCircle, FiMessageSquare } from "react-icons/fi";
+import { FiAlertCircle, FiCheckCircle, FiMessageSquare } from "react-icons/fi";
 import { MdOutlineForum } from "react-icons/md";
 import Button from "../../../components/Reusable/Button/Button";
 import { Link } from "react-router-dom";
@@ -88,6 +88,16 @@ const Queries = () => {
         </Link>
       </div>
 
+      {/* No Results */}
+      {(!isLoading || !isFetching) && queries?.length === 0 && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+          <FiAlertCircle size={48} className="mx-auto text-gray-400 mb-3" />
+          <h3 className="text-lg font-medium text-gray-900 mb-1">
+            No results found
+          </h3>
+          <p className="text-gray-500">No queries found</p>
+        </div>
+      )}
       {/* Q&A Cards - Forum Style */}
       {isLoading || isFetching ? (
         <Loader />
