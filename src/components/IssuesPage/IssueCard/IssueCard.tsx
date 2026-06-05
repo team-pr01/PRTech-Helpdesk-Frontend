@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { FiCalendar, FiCheckCircle, FiImage } from "react-icons/fi";
+import { FiCalendar, FiCheckCircle, FiFile, FiImage } from "react-icons/fi";
 import {
   getPriorityColor,
   getStatusConfig,
@@ -7,7 +7,7 @@ import {
 } from "../../../pages/Dashboard/Issues/Issues";
 import { formatDate } from "../../../utils/formatDate";
 
-const IssueCard = ({ issue, setSelectedIssue, setIsModalOpen } : any) => {
+const IssueCard = ({ issue, setSelectedIssue, setIsModalOpen }: any) => {
   const handleViewDetails = (issue: TIssue) => {
     setSelectedIssue(issue);
     setIsModalOpen(true);
@@ -47,6 +47,12 @@ const IssueCard = ({ issue, setSelectedIssue, setIsModalOpen } : any) => {
 
       {/* Meta Information */}
       <div className="space-y-2 pt-3 border-t border-gray-100">
+        <div className="flex items-center gap-2 text-sm text-gray-500">
+          <FiFile size={14} />
+          <p>
+            Project: <span className="font-bold">{issue?.project?.name}</span>
+          </p>
+        </div>
         <div className="flex items-center gap-2 text-sm text-gray-500">
           <FiCalendar size={14} />
           <span>Reported: {formatDate(issue.createdAt)}</span>

@@ -93,6 +93,7 @@ const Issues = () => {
     priority: priorityFilter,
   });
   const issues = data?.data?.data || [];
+  console.log(data);
   const statsData = data?.data?.stats || [];
 
   // Statistics

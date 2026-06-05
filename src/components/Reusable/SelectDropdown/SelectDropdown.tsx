@@ -67,7 +67,7 @@ const SelectDropdown = forwardRef<HTMLSelectElement, DropdownProps>(
           <option value="" disabled selected>
             Select {label}
           </option>
-          {options.map((option:any, index:number) => (
+          {options.map((option: any, index: number) => (
             <option key={index} value={option} className="capitalize">
               {option}
             </option>

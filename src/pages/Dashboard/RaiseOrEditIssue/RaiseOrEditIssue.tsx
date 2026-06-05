@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import {
   useAddIssueMutation,
+  useGetProjectsByClientUserIdQuery,
   useGetSingleIssueQuery,
   useUpdateIssueMutation,
 } from "../../../redux/Features/issues/issuesApi";
@@ -17,9 +18,10 @@ import { FiArrowLeft, FiX, FiUpload } from "react-icons/fi";
 type RaiseOrEditIssueFormData = {
   title: string;
   description: string;
-  priority: "Low" | "Medium" | "High" | "Urgent";
+  priority: "Low" | "Medium" | "High" | "Urgent" | string;
   status?: "Pending" | "Ongoing" | "Resolved" | "Closed";
   resolution?: string;
+  project: string;
 };
 
 const RaiseOrEditIssue = () => {
@@ -43,18 +45,21 @@ const RaiseOrEditIssue = () => {
     defaultValues: {
       title: "",
       description: "",
-      priority: "Medium",
+      priority: "",
       status: "Pending",
       resolution: "",
+      project: "",
     },
   });
+
+  const { data: projectData } = useGetProjectsByClientUserIdQuery({});
 
   const [addIssue] = useAddIssueMutation();
   const [updateIssue] = useUpdateIssueMutation();
 
   // Options for dropdowns
   const priorityOptions = ["low", "medium", "high", "urgent"];
-const statusOptions = ["pending", "ongoing", "answered", "closed"];
+  const statusOptions = ["pending", "ongoing", "answered", "closed"];
 
   // Set default values when editing
   useEffect(() => {
@@ -66,6 +71,7 @@ const statusOptions = ["pending", "ongoing", "answered", "closed"];
         priority: issue.priority || "Medium",
         status: issue.status || "Pending",
         resolution: issue.resolution || "",
+        project: issue.project || "",
       });
 
       // Set existing images
@@ -131,6 +137,7 @@ const statusOptions = ["pending", "ongoing", "answered", "closed"];
       formData.append("title", data.title);
       formData.append("description", data.description);
       formData.append("priority", data.priority);
+      formData.append("project", data.project);
 
       if (!id) {
         formData.append("status", "Pending");
@@ -173,6 +180,12 @@ const statusOptions = ["pending", "ongoing", "answered", "closed"];
     }
   };
 
+  const projectOptions =
+    projectData?.data?.map((project: any) => ({
+      value: project?._id,
+      label: project?.name,
+    })) || [];
+
   if (id && isLoadingIssue) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -203,10 +216,6 @@ const statusOptions = ["pending", "ongoing", "answered", "closed"];
           error={errors.title}
           {...register("title", {
             required: "Title is required",
-            minLength: {
-              value: 5,
-              message: "Title must be at least 5 characters",
-            },
           })}
         />
 
@@ -216,6 +225,31 @@ const statusOptions = ["pending", "ongoing", "answered", "closed"];
           error={errors.priority}
           {...register("priority", { required: "Priority is required" })}
         />
+      </div>
+
+      <div>
+        <label className="flex flex-row items-center w-full justify-between text-neutral-65 mb-2">
+          <span className="text-neutral-10 leading-[18px] text-[15px] font-medium tracking-[-0.16] ">
+            Project <span className="text-primary-10">*</span>
+          </span>
+        </label>
+        <select
+          aria-label="Project"
+          {...register("project", { required: "Project is required" })}
+          className={`w-full px-4 py-[11px] rounded-lg border 
+  leading-[18px] focus:outline-none focus:border-primary-10 
+  transition duration-300 capitalize 
+  disabled:cursor-not-allowed
+  whitespace-normal break-words border-neutral-45/20 bg-white cursor-pointer
+`}
+        >
+          <option value="">Select Project</option>
+          {projectOptions.map((project: any) => (
+            <option key={project.value} value={project.value}>
+              {project.label}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Description */}

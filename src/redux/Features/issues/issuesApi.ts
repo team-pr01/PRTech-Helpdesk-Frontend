@@ -4,7 +4,7 @@ import { baseApi } from "../../API/baseApi";
 const issuesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // ========== ISSUES APIs ==========
-    
+
     // Get all issues with filters and pagination
     getAllIssues: builder.query({
       query: ({
@@ -80,13 +80,23 @@ const issuesApi = baseApi.injectEndpoints({
         if (typeof page === "number") params.append("page", page.toString());
         if (status) params.append("status", status);
         if (priority) params.append("priority", priority);
-        
+
         return {
           url: `/issue/my-issues?${params.toString()}`,
           method: "GET",
           credentials: "include",
         };
       },
+      providesTags: ["issue"],
+    }),
+
+    // Get single issue by ID
+    getProjectsByClientUserId: builder.query({
+      query: () => ({
+        url: `/project/client/my-projects`,
+        method: "GET",
+        credentials: "include",
+      }),
       providesTags: ["issue"],
     }),
 
@@ -177,6 +187,7 @@ export const {
   useGetAllIssuesQuery,
   useGetSingleIssueQuery,
   useGetMyRaisedIssuesQuery,
+  useGetProjectsByClientUserIdQuery,
   useAddIssueMutation,
   useUpdateIssueMutation,
   useDeleteIssueMutation,
